@@ -1,0 +1,743 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Fact schema",
+    "type": "object",
+    "definitions": {
+        "domain-name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 253,
+            "pattern": "((([a-zA-Z0-9_]([a-zA-Z0-9\\-_]){0,61})?[a-zA-Z0-9]\\.)* ([a-zA-Z0-9_]([a-zA-Z0-9\\-_]){0,61})?[a-zA-Z0-9]\\.?)|\\.",
+            "description": "The domain-name type represents a DNS domain name. Fully quallified left to the models which utilize this type.\nInternet domain names are only loosely specified.  Section 3.5 of RFC 1034 recommends a syntax (modified in Section 2.1 of RFC 1123).  The pattern above is intended to allow for current practice in domain name use, and some possible future expansion.  It is designed to hold various types of domain names, including names used for A or AAAA records (host names) and other records, such as SRV records.  Note that Internet host names have a stricter syntax (described in RFC 952) than the DNS recommendations in RFCs 1034 and 1123, and that systems that want to store host names in schema nodes using the domain-name type are recommended to adhere to this stricter standard to ensure interoperability.\nThe encoding of DNS names in the DNS protocol is limited to 255 characters.  Since the encoding consists of labels prefixed by a length bytes and there is a trailing NULL byte, only 253 characters can appear in the textual dotted notation.\nDomain-name values use the US-ASCII encoding.  Their canonical format uses lowercase US-ASCII characters.  Internationalized domain names MUST be encoded in punycode as described in RFC 3492\n"
+        },
+        "host": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/ip-address"
+                },
+                {
+                    "$ref": "#/definitions/domain-name"
+                }
+            ],
+            "description": "The host type represents either an unzoned IP address or a DNS domain name.\n"
+        },
+        "ip-address": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/ipv4-address"
+                },
+                {
+                    "$ref": "#/definitions/ipv6-address"
+                }
+            ],
+            "description": "An IPv4 or IPv6 address with no prefix specified."
+        },
+        "ip-prefix": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/ipv4-prefix"
+                },
+                {
+                    "$ref": "#/definitions/ipv6-prefix"
+                }
+            ],
+            "description": "An IPv4 or IPv6 prefix.\n"
+        },
+        "ipv4-address": {
+            "type": "string",
+            "format": "ipv4",
+            "pattern": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]| 25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+            "description": "An IPv4 address in dotted quad notation using the default zone.\n"
+        },
+        "ipv4-prefix": {
+            "type": "string",
+            "pattern": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]| 25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2]))$",
+            "description": "An IPv4 prefix represented in dotted quad notation followed by a slash and a CIDR mask (0 <= mask <= 32).\n"
+        },
+        "ipv6-address": {
+            "type": "string",
+            "pattern": "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}| ([0-9a-fA-F]{1,4}:){1,7}:| ([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}| ([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}| ([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}| ([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}| ([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}| [0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})| :((:[0-9a-fA-F]{1,4}){1,7}|:) )$",
+            "description": "An IPv6 address represented as either a full address; shortened or mixed-shortened formats, using the default zone.\n"
+        },
+        "ipv6-prefix": {
+            "type": "string",
+            "pattern": "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}| ([0-9a-fA-F]{1,4}:){1,7}:| ([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}| ([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}| ([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}| ([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}| ([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}| [0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})| :((:[0-9a-fA-F]{1,4}){1,7}|:) )/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9])$",
+            "description": "An IPv6 prefix represented in full, shortened, or mixed shortened format followed by a slash and CIDR mask (0 <= mask <= 128).\n"
+        },
+        "mac-address": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}$",
+            "description": "An IEEE 802 MAC address\n"
+        },
+        "uuid": {
+            "type": "string",
+            "pattern": "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}- [0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+            "description": "A Universally Unique IDentifier in the string representation defined in RFC 4122.  The canonical representation uses lowercase characters.\n",
+            "example": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
+        }
+    },
+    "Application": {
+        "properties": {
+            "id": {
+                "$ref": "#/definitions/uuid",
+                "readOnly": true,
+                "example": "1197f750-1f00-4733-8bb9-def089c7c7e5"
+            },
+            "name": {
+                "type": "string",
+                "example": "Default Application"
+            },
+            "description": {
+                "type": "string",
+                "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            },
+            "domainName": {
+                "$ref": "#/definitions/domain-name",
+                "description": "Master domain name"
+            },
+            "stacks": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/Stack"
+                }
+            }
+        }
+    },
+    "Httpstack": {
+        "properties": {
+            "stack_type": {
+                "type": "string",
+                "example": "http-rev-proxy"
+            },
+            "tls": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "object",
+                        "properties": {
+                            "certificate": {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "privateKey": {
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "Endpoint": {
+        "properties": {
+            "loadBalancing": {
+                "type": "string",
+                "enum": [
+                    "LEAST_CONNECTIONS",
+                    "ROUND_ROBIN"
+                ],
+                "default": "LEAST_CONNECTIONS",
+                "example": "LEAST_CONNECTIONS"
+            },
+            "monitors": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "soft references, by 'name', to monitors.",
+                "example": [
+                    "http",
+                    "inband"
+                ]
+            },
+            "addresses": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ip-address"
+                }
+            }
+        }
+    },
+    "Job": {
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "uuid",
+                "readOnly": true,
+                "example": "30bf2722-0168-4af3-a060-d60ed9217207"
+            },
+            "name": {
+                "type": "string",
+                "readOnly": true,
+                "example": "PUT https://mbip.example.com/api/0.1/systems/70e6e498-59a9-4202-a59b-25cb179e2dd6"
+            },
+            "state": {
+                "type": "string",
+                "enum": [
+                    "PENDING",
+                    "QUEUED",
+                    "PROCESSING",
+                    "COMPLETED"
+                ],
+                "example": "PENDING"
+            },
+            "status": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "type": "string",
+                        "enum": [
+                            "ACCEPTED",
+                            "WORKING",
+                            "SUCCEEDED",
+                            "FAILED",
+                            "TIMEDOUT"
+                        ],
+                        "description": "This name conflicts with the `state` property outside and should change.",
+                        "example": "ACCEPTED"
+                    },
+                    "message": {
+                        "type": "object",
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "description": "State code from the message catalog.",
+                                "example": "abc123"
+                            },
+                            "content": {
+                                "type": "string",
+                                "description": "Message from the message catalog.",
+                                "example": "lorem ipsum dolar sit"
+                            }
+                        }
+                    }
+                }
+            },
+            "percentComplete": {
+                "type": "integer",
+                "example": 95
+            },
+            "stateTime": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "endTime": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "owner": {
+                "type": "string",
+                "description": "handle for the agent that created the job (user name or api key)",
+                "example": "olivia"
+            }
+        }
+    },
+    "Network": {
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "uuid",
+                "readOnly": true,
+                "example": "e6e54a4e-88f3-44b0-80b2-de8aecd280b5"
+            },
+            "name": {
+                "type": "string",
+                "example": "Default Network"
+            },
+            "description": {
+                "type": "string",
+                "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            },
+            "globals": {
+                "$ref": "#/Networkglobal"
+            },
+            "virtualRouters": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/Networkvirtualrouter"
+                }
+            },
+            "routes": {
+                "$ref": "#/Networkroutes"
+            },
+            "neighborhood": {
+                "$ref": "#/Networkneighborhood"
+            },
+            "sharedLists": {
+                "$ref": "#/Networksharedlists"
+            }
+        }
+    },
+    "Networkglobal": {
+        "properties": {
+            "autoLastHop": {
+                "type": "boolean",
+                "default": false,
+                "example": false
+            },
+            "vlanKeyedConnections": {
+                "type": "boolean",
+                "default": true,
+                "example": true
+            },
+            "rejectUnmatchedPackets": {
+                "type": "boolean",
+                "default": true,
+                "example": true
+            },
+            "reaperHighWaterMark": {
+                "type": "integer",
+                "default": 95,
+                "example": 95
+            },
+            "reaperLowWaterMark": {
+                "type": "integer",
+                "default": 85,
+                "example": 85
+            },
+            "layer2CacheAgingTime": {
+                "type": "integer",
+                "default": 300,
+                "example": 300
+            },
+            "sharedSingleMacAddress": {
+                "type": "boolean",
+                "default": false,
+                "example": false
+            }
+        }
+    },
+    "Networkneighborhood": {
+        "properties": {
+            "arp": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string",
+                            "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                        },
+                        "ipAddress": {
+                            "$ref": "#/definitions/ipv4-address",
+                            "example": "10.10.10.20"
+                        },
+                        "macAddress": {
+                            "$ref": "#/definitions/mac-address",
+                            "example": "00:0b:09:88:00:9a"
+                        }
+                    }
+                }
+            },
+            "ndp": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string",
+                            "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                        },
+                        "ipAddress": {
+                            "$ref": "#/definitions/ipv6-address",
+                            "example": "fec0:f515::c001"
+                        },
+                        "macAddress": {
+                            "$ref": "#/definitions/mac-address",
+                            "example": "00:0B:DB:3F:F6:57"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "Networkroutes": {
+        "properties": {
+            "description": {
+                "type": "string"
+            },
+            "destination": {
+                "$ref": "#/definitions/ip-address",
+                "example": "10.0.1.10/24"
+            },
+            "device": {
+                "type": "string",
+                "enum": [
+                    "GW",
+                    "POOL",
+                    "TUNNEL"
+                ],
+                "example": "GW"
+            },
+            "address": {
+                "$ref": "#/definitions/ip-address",
+                "example": "10.10.10.254"
+            }
+        }
+    },
+    "Networksharedlists": {
+        "properties": {
+            "addressLists": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "example": "loremAddressList"
+                        },
+                        "description": {
+                            "type": "string",
+                            "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                        },
+                        "addresses": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ip-address"
+                            },
+                            "example": [
+                                "10.0.1.10",
+                                "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            },
+            "portLists": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "example": "ipsumPortList"
+                        },
+                        "description": {
+                            "type": "string",
+                            "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                        },
+                        "ports": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "example": [
+                                443
+                            ]
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            },
+            "memberList": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "members": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "Networkvirtualrouter": {
+        "properties": {
+            "name": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 65535,
+                "example": 1
+            },
+            "description": {
+                "type": "string"
+            },
+            "vlans": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "example": "vlan100"
+                        },
+                        "description": {
+                            "type": "string",
+                            "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                        },
+                        "vlanId": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4094,
+                            "example": 100
+                        },
+                        "trunks": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "interfaces": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": 1.1
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "self-ips": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "address": {
+                                        "$ref": "#/definitions/ip-prefix"
+                                    },
+                                    "is-floating": {
+                                        "type": "boolean",
+                                        "default": false
+                                    }
+                                },
+                                "required": [
+                                    "address",
+                                    "is-floating"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "vlanId"
+                    ]
+                }
+            }
+        }
+    },
+    "Service": {
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "uuid",
+                "readOnly": true,
+                "example": "70e6e498-59a9-4202-a59b-25cb179e2dd6"
+            },
+            "name": {
+                "type": "string",
+                "example": "Default Service"
+            },
+            "description": {
+                "type": "string",
+                "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            }
+        }
+    },
+    "Stack": {
+        "allOf": [
+            {
+                "$ref": "#/Stackcommon"
+            },
+            {
+                "$ref": "#/Httpstack"
+            }
+        ],
+        "discriminator": {
+            "propertyName": "stack_type"
+        }
+    },
+    "Stackcommon": {
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "uuid",
+                "readOnly": true,
+                "example": "3b997ff6-3c96-41d3-a9ec-ecb1a69017d2"
+            },
+            "name": {
+                "type": "string",
+                "example": "Default Stack"
+            },
+            "description": {
+                "type": "string",
+                "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            },
+            "addressList": {
+                "type": "string",
+                "description": "a soft reference, by `name`, to an address list.",
+                "default": ""
+            },
+            "portList": {
+                "type": "string",
+                "description": "a soft reference, by `name`, to a port list."
+            },
+            "endpoints": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/Endpoint"
+                }
+            },
+            "policies": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            }
+        }
+    },
+    "System": {
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "uuid",
+                "readOnly": true,
+                "example": "70e6e498-59a9-4202-a59b-25cb179e2dd6"
+            },
+            "name": {
+                "type": "string",
+                "example": "Default System"
+            },
+            "description": {
+                "type": "string",
+                "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            },
+            "hostname": {
+                "type": "string",
+                "example": "mbip.example.com"
+            },
+            "license": {
+                "$ref": "#/Systemlicense"
+            },
+            "timezone": {
+                "type": "string",
+                "default": "America/Los_Angeles",
+                "example": "America/Los_Angeles"
+            },
+            "ntpServers": {
+                "type": "object",
+                "properties": {
+                    "servers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/host"
+                        },
+                        "example": [
+                            "0.ro.pool.ntp.org",
+                            "1.ro.pool.ntp.org"
+                        ]
+                    }
+                }
+            },
+            "users": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "example": [
+                    {
+                        "username": "david"
+                    },
+                    {
+                        "username": "olivia"
+                    }
+                ]
+            },
+            "hostDns": {
+                "$ref": "#/Systemhostdns"
+            },
+            "hostNetwork": {
+                "$ref": "#/Systemhostnetwork"
+            },
+            "deviceCertificate": {
+                "$ref": "#/Systemdevicecertificate"
+            }
+        }
+    },
+    "Systemdevicecertificate": {
+        "properties": {
+            "cert": {
+                "type": "string",
+                "example": "file:///system-default.cert"
+            },
+            "key": {
+                "type": "string",
+                "example": "file:///system-default.key"
+            }
+        }
+    },
+    "Systemhostdns": {
+        "properties": {
+            "servers": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ip-address"
+                },
+                "example": [
+                    "2001:db8:245:245::53",
+                    "192.0.2.53"
+                ]
+            }
+        }
+    },
+    "Systemhostnetwork": {
+        "properties": {
+            "address": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ip-address"
+                },
+                "example": [
+                    "2001:db8:245:245::245",
+                    "192.0.2.245"
+                ]
+            },
+            "gateway": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ip-address"
+                },
+                "example": [
+                    "2001:db8:245:245::1",
+                    "192.0.2.1"
+                ]
+            },
+            "subnet": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ip-prefix"
+                },
+                "example": [
+                    "2001:db8:245:245::/64",
+                    "192.0.2.0/24"
+                ]
+            }
+        }
+    },
+    "Systemlicense": {
+        "properties": {
+            "regkey": {
+                "type": "string",
+                "example": "E3541-73328-90306-31326-2603831"
+            }
+        }
+    }
+}
