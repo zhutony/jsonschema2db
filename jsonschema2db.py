@@ -228,30 +228,29 @@ class JSONSchemaToDatabase:
         else:
             return '"%s"."%s"' % (self._postgres_schema, table)
 
-    def create_tables(self, con):
+    def create_tables(self):
         '''Creates tables
 
         :param con: psycopg2 connection object
         '''
         postgres_types = {'boolean': 'bool', 'number': 'float', 'string': 'text', 'enum': 'text', 'integer': 'bigint', 'timestamp': 'timestamptz', 'date': 'date', 'link': 'integer'}
-        with con.cursor() as cursor:
-            if self._postgres_schema is not None:
-                self._execute(cursor, 'drop schema if exists %s cascade' % self._postgres_schema)
-                self._execute(cursor, 'create schema %s' % self._postgres_schema)
-            for table, columns in self._table_columns.items():
-                types = [self._table_definitions[table][column] for column in columns]
-                id_data_type = {'postgres': 'serial', 'redshift': 'int identity(1, 1) not null'}[self._database_flavor]
+        if self._postgres_schema is not None:
+            print('drop schema if exists %s cascade' % self._postgres_schema)
+            print('create schema %s' % self._postgres_schema)
+        for table, columns in self._table_columns.items():
+            types = [self._table_definitions[table][column] for column in columns]
+            id_data_type = {'postgres': 'serial', 'redshift': 'int identity(1, 1) not null'}[self._database_flavor]
 
-                create_q = 'create table %s (id %s, "%s" %s not null, "%s" text not null, %s unique ("%s", "%s"), unique (id))' % \
-                           (self._postgres_table_name(table), id_data_type, self._item_col_name, postgres_types[self._item_col_type], self._prefix_col_name,
-                            ''.join('"%s" %s, ' % (c, postgres_types[t]) for c, t in zip(columns, types)),
-                            self._item_col_name, self._prefix_col_name)
-                self._execute(cursor, create_q)
-                if table in self._table_comments:
-                    self._execute(cursor, 'comment on table %s is %%s' % self._postgres_table_name(table), (self._table_comments[table],))
-                for c in columns:
-                    if c in self._column_comments.get(table, {}):
-                        self._execute(cursor, 'comment on column %s."%s" is %%s' % (self._postgres_table_name(table), c), (self._column_comments[table][c],))
+            create_q = 'create table %s (id %s, "%s" %s not null, "%s" text not null, %s unique ("%s", "%s"), unique (id))' % \
+                       (self._postgres_table_name(table), id_data_type, self._item_col_name, postgres_types[self._item_col_type], self._prefix_col_name,
+                        ''.join('"%s" %s, ' % (c, postgres_types[t]) for c, t in zip(columns, types)),
+                        self._item_col_name, self._prefix_col_name)
+            print(create_q)
+            if table in self._table_comments:
+                print('comment on table %s is %%s' % self._postgres_table_name(table), (self._table_comments[table],))
+            for c in columns:
+                if c in self._column_comments.get(table, {}):
+                    print('comment on column %s."%s" is %%s' % (self._postgres_table_name(table), c), (self._column_comments[table][c],))
 
     def _insert_items_generate_rows(self, items, count):
         # Helper function to generate data row by row for insertion

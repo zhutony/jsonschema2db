@@ -1,0 +1,35 @@
+{
+    "$id": "Domain Model: tt1",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "types": {
+            "uuid": {
+                "type": "string",
+                "pattern": "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}- [0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+                "description": "A Universally Unique IDentifier in the string representation defined in RFC 4122.  The canonical representation uses lowercase characters.\n",
+                "example": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
+            }
+        },
+        "tables": {
+            "Application": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "example": "1197f750-1f00-4733-8bb9-def089c7c7e5"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Default Application"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                    }
+                }
+            }
+        }
+    }
+}

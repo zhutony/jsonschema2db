@@ -1,14 +1,16 @@
 #!/usr/local/bin/python3
 
+import sys
 import json
 import jsonschema2db
 import psycopg2
 
-schema = json.load(open('all.json'))
+src = sys.argv[1] if len(sys.argv) > 1 else 'tt.json'
+schm = sys.argv[2] if len(sys.argv) > 2 else None
+schema = json.load(open(src))
 translator = jsonschema2db.JSONSchemaToPostgres(
     schema,
-    postgres_schema='tt'
+    postgres_schema = schm
 )
-print(translator)
-con = psycopg2.connect('host=127.0.0.1 user=postgres dbname=zhu')
-translator.create_tables(con)
+print('=================== DDL =================')
+translator.create_tables()
