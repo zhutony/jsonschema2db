@@ -1,9 +1,8 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 
 import sys
 import json
 import jsonschema2db
-import psycopg2
 
 src = sys.argv[1] if len(sys.argv) > 1 else 'tt.json'
 schm = sys.argv[2] if len(sys.argv) > 2 else None
